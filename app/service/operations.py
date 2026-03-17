@@ -4,9 +4,9 @@ from app.repository import wallets as wallets_repository
 
 
 def add_income(operarion: OperationRequest):
-    if wallets_repository.is_wallet_exists(operarion.wallet_name):
+    if not wallets_repository.is_wallet_exists(operarion.wallet_name):
         raise HTTPException(
-            status_code=400, 
+            status_code=404, 
             detail=f"Wallet {operarion.wallet_name} not found"
         )
     new_balance = wallets_repository.add_income(operarion.wallet_name, operarion.amount)
@@ -19,9 +19,9 @@ def add_income(operarion: OperationRequest):
     }
 
 def add_expense(operarion: OperationRequest):
-    if wallets_repository.is_wallet_exists(operarion.wallet_name):
+    if not wallets_repository.is_wallet_exists(operarion.wallet_name):
         raise HTTPException(
-            status_code=400, 
+            status_code=404, 
             detail=f"Wallet {operarion.wallet_name} not found"
         )
     
