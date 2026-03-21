@@ -15,6 +15,5 @@ Base.metadata.create_all(bind=engine)
 
 
 
-
-
-#       python -m uvicorn main:app --reload
+#       чтобы запустить  
+#       python -m uvicorn main:app --reload  
