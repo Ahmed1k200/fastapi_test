@@ -6,9 +6,9 @@ router = APIRouter()
 
 
 @router.post("/operations/income")
-def add_income(operarion: OperationRequest):
-    return operations_service.add_income(operarion)
+def add_income(operation: OperationRequest):
+    return operations_service.add_income(operation)
 
 @router.post("/operations/expense")
-def add_expense(operarion: OperationRequest):
-    return operations_service.add_expense(operarion)
+def add_expense(operation: OperationRequest):
+    return operations_service.add_expense(operation)
