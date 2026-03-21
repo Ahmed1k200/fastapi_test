@@ -18,3 +18,6 @@ Base.metadata.create_all(bind=engine)
 
 #       чтобы запустить  
 #       python -m uvicorn main:app --reload  
+
+#       для теста
+#       python -m pytest
