@@ -1,7 +1,7 @@
 from fastapi import HTTPException, APIRouter
 from sqlalchemy.orm import Session
 from app.models import User
-from app.schemas import CreateWalletRequest
+from app.schemas import CreateWalletRequest, WalletResponse
 from app.repository import wallets as wallets_repository
 from app.database import SessionLocal
 
@@ -21,17 +21,14 @@ def get_wallet(db: Session, current_user: User, wallet_name: str | None = None):
         "balance": wallet.balance
     }
 
-def create_wallet(db: Session, current_user: User, wallet: CreateWalletRequest):
+def create_wallet(db: Session, current_user: User, wallet: CreateWalletRequest) -> WalletResponse:
     if wallets_repository.is_wallet_exists(db, current_user.id, wallet.name):
         raise HTTPException(
             status_code=400, 
             detail=f"Wallet {wallet.name} already exists"
         )
-    wallet = wallets_repository.create_wallet(db, current_user.id, wallet.name, wallet.initial_balance)
+    wallet = wallets_repository.create_wallet(db, current_user.id, wallet.name, wallet.initial_balance, wallet.currency)
     db.commit()
-    return {
-        "message": f"wallet {wallet.name} created",
-        "wallet": wallet.name, 
-        "balance": wallet.balance
-    }
+    return WalletResponse.model_validate(wallet)
+    
 
