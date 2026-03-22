@@ -1,14 +1,21 @@
-# Python cache
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Environment
-venv/
+# Databases
+*.db
+*.sqlite3
+
+# Tests
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environments
+.venv/
+env/
 .env
 
-# Databases (твоя локальная БД)
-finance.db
-
-# IDE settings
-.vscode/
+# OS files
+.DS_Store
