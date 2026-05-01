@@ -1,25 +1,25 @@
-from fastapi import HTTPException, APIRouter
+﻿from decimal import Decimal
+from app.service import exchange_service
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from app.enum import CurrencyEnum
 from app.models import User
-from app.schemas import CreateWalletRequest, WalletResponse
+from app.schemas import CreateWalletRequest, TotalBalance, WalletResponse
 from app.repository import wallets as wallets_repository
-from app.database import SessionLocal
 
 
-def get_wallet(db: Session, current_user: User, wallet_name: str | None = None):
+async def get_wallet(db: Session, current_user: User) -> TotalBalance:
     wallets = wallets_repository.get_all_wallets(db, current_user.id)
-    if wallet_name is None:
-        return{"total_balance": sum([w.balance for w in wallets])}     
-    if not wallets_repository.is_wallet_exists(db, current_user.id, wallet_name):
-        raise HTTPException(
-            status_code=404, 
-            detail=f"Wallet {wallet_name} not found"
-        )
-    wallet = wallets_repository.get_wallet_balance_by_name(db, current_user.id, wallet_name)
-    return {
-        "wallet_name": wallet.name, 
-        "balance": wallet.balance
-    }
+    total_balance = Decimal(0)
+    for wallet in wallets:
+        if wallet.currency == CurrencyEnum.RUB:
+            total_balance += wallet.balance
+        else:
+            exchange_rate = await exchange_service.get_exchange_rate(wallet.currency, CurrencyEnum.RUB)
+            total_balance += wallet.balance * exchange_rate
+
+    return TotalBalance(total_balance=total_balance)
+
 
 def create_wallet(db: Session, current_user: User, wallet: CreateWalletRequest) -> WalletResponse:
     if wallets_repository.is_wallet_exists(db, current_user.id, wallet.name):
@@ -30,5 +30,8 @@ def create_wallet(db: Session, current_user: User, wallet: CreateWalletRequest) 
     wallet = wallets_repository.create_wallet(db, current_user.id, wallet.name, wallet.initial_balance, wallet.currency)
     db.commit()
     return WalletResponse.model_validate(wallet)
-    
 
+
+def get_all_wallets(db: Session, current_user: User) -> list[WalletResponse]:
+    wallets = wallets_repository.get_all_wallets(db, current_user.id)
+    return [WalletResponse.model_validate(w) for w in wallets]
